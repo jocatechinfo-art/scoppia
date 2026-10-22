@@ -1,6 +1,6 @@
 import {getDb} from '@/db';
-import {availability,orders} from '@/db/schema';
-import {menu} from '@/lib/menu';
+import {orders} from '@/db/schema';
+import {catalogSnapshot} from '@/lib/catalog';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
 import {saveCustomer,privateHeaders,sameOrigin} from '@/lib/customers';
 import {eq} from 'drizzle-orm';
@@ -12,7 +12,7 @@ export async function POST(req:Request){
  const db=getDb();const [previous]=await db.select().from(orders).where(eq(orders.requestId,requestId));
  if(previous){const {customers}=await import('@/db/schema');const [owner]=await db.select().from(customers).where(eq(customers.userId,u.userId));if(previous.customerId!==owner?.id)throw Error('Identificador de pedido inválido.');return Response.json({url:whatsapp(previous),orderId:previous.id},{headers:privateHeaders});}
  const min=new Date(Date.now()-3*3600000);min.setUTCDate(min.getUTCDate()+7);if(typeof date!=='string'||(date!==''&&(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date||date<min.toISOString().slice(0,10))))throw Error('Escolha uma data com pelo menos 7 dias de antecedência.');
- const rows=await db.select().from(availability);const off=new Set(rows.filter(r=>!r.active).map(r=>r.id));let totalCents=0;
+ const {items:menu}=await catalogSnapshot();const off=new Set(menu.filter(r=>!r.active).map(r=>r.id));let totalCents=0;
  const snapshot=cart.map(c=>{if(!c||typeof c.id!=='string')throw Error('Item inválido.');const i=menu.find(i=>i.id===c.id);if(!i||off.has(c.id))throw Error('Um item ficou indisponível. Atualize o cardápio.');if(!Number.isInteger(c.size)||c.size<0||c.size>=i.prices.length||!Number.isInteger(c.qty)||c.qty<1||c.qty>99)throw Error('Quantidade inválida.');const unitCents=Math.round(i.prices[c.size]*100);totalCents+=unitCents*c.qty;return {id:i.id,name:i.name,size:i.sizes[c.size],qty:c.qty,unitCents};});
  const c=await saveCustomer(u.userId,b);const order={id:crypto.randomUUID(),customerId:c.id,requestId,items:JSON.stringify(snapshot),totalCents,customerName:c.name,phone:c.phone,address:c.address,preferredDate:date,notes,status:'aguardando_confirmacao',deliveryDate:null,createdAt:new Date().toISOString()};
  await db.insert(orders).values(order).onConflictDoNothing({target:orders.requestId});const [saved]=await db.select().from(orders).where(eq(orders.requestId,requestId));if(!saved||saved.customerId!==c.id)throw Error('Não foi possível registrar o pedido.');return Response.json({url:whatsapp(saved),orderId:saved.id},{headers:privateHeaders});

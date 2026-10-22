@@ -10,3 +10,13 @@ export const orders=sqliteTable('orders',{
 export const bridgeCodes=sqliteTable('bridge_codes',{
  codeHash:text('code_hash').primaryKey(),challenge:text('challenge').notNull(),userId:text('user_id').notNull(),email:text('email').notNull(),displayName:text('display_name').notNull(),fullName:text('full_name'),expiresAt:integer('expires_at').notNull()
 });
+
+export const menuPrices=sqliteTable('menu_prices',{
+ id:text('id').primaryKey(),itemId:text('item_id').notNull(),sizeIndex:integer('size_index').notNull(),cents:integer('cents').notNull()
+});
+export const menuPriceState=sqliteTable('menu_price_state',{
+ id:text('id').primaryKey(),revision:integer('revision').notNull().default(0),lastBatchId:text('last_batch_id')
+});
+export const menuPriceChanges=sqliteTable('menu_price_changes',{
+ id:text('id').primaryKey(),adminEmail:text('admin_email').notNull(),createdAt:text('created_at').notNull(),scope:text('scope').notNull(),fromCents:integer('from_cents').notNull(),toCents:integer('to_cents').notNull(),changedCount:integer('changed_count').notNull(),details:text('details').notNull()
+});
