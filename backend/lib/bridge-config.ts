@@ -1,0 +1,2 @@
+import {env} from 'cloudflare:workers';
+export function bridgeConfig(){const e=env as unknown as {SCOPPIA_BRIDGE_SECRET?:string,SCOPPIA_VERCEL_ORIGIN?:string};if(!e.SCOPPIA_BRIDGE_SECRET||!e.SCOPPIA_VERCEL_ORIGIN)throw Error('Conexão Vercel ainda não configurada.');const u=new URL(e.SCOPPIA_VERCEL_ORIGIN);if(u.protocol!=='https:'&&u.hostname!=='127.0.0.1'&&u.hostname!=='localhost')throw Error('Invalid destination');return {secret:e.SCOPPIA_BRIDGE_SECRET,origin:u.origin};}

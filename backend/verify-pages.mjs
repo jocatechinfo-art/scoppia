@@ -1,0 +1,2 @@
+import assert from 'node:assert/strict';
+const b='http://127.0.0.1:5173';for(const p of ['/','/cardapio','/combos','/pedido','/admin','/minha-conta','/admin/pedidos'])assert.equal((await fetch(b+p)).status,200,p);assert.equal((await fetch(b+'/api/orders')).status,401);assert.equal((await fetch(b+'/api/admin/orders')).status,403);console.log('OK: páginas públicas e login; APIs de histórico protegidas.');

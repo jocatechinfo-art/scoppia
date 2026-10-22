@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+*.tsbuildinfo
+backend/node_modules/
+backend/dist/
+backend/.wrangler/
+backend/.sites-runtime/
+backend/.dev.vars*
+backend/.env*
+backend/outputs/
+backend/work/

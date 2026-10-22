@@ -1,0 +1,1 @@
+export default function Page(){return <main className="login"><a href="/cardapio">← Cardápio</a><h1>Vamos tentar novamente?</h1><p>A conexão expirou ou não pôde ser validada. Seus dados continuam salvos.</p><a className="primary" target="_top" href="/signin-with-chatgpt?return_to=%2Fminha-conta">Entrar novamente →</a></main>}

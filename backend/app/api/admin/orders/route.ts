@@ -1,0 +1,11 @@
+import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {getDb} from '@/db';
+import {orders,customers} from '@/db/schema';
+import {eq,desc} from 'drizzle-orm';
+import {ADMIN,cpfHash,privateHeaders,sameOrigin} from '@/lib/customers';
+export const dynamic='force-dynamic';
+async function allowed(){return (await getChatGPTUser())?.email.toLowerCase()===ADMIN;}
+async function list(hash?:string){const db=getDb();const query=db.select({order:orders,cpfLast:customers.cpfLast}).from(orders).innerJoin(customers,eq(orders.customerId,customers.id));const rows=await (hash?query.where(eq(customers.cpfHash,hash)):query).orderBy(desc(orders.createdAt)).limit(100);return Response.json(rows.map(({order:{requestId,customerId,...o},cpfLast})=>({...o,items:JSON.parse(o.items),cpfMasked:'***.***.***-'+cpfLast})),{headers:privateHeaders});}
+export async function GET(){if(!await allowed())return new Response(null,{status:403,headers:privateHeaders});return list();}
+export async function POST(req:Request){if(!await allowed()||!sameOrigin(req))return new Response(null,{status:403,headers:privateHeaders});try{const b=await req.json() as {cpf?:string};return list(b.cpf?(await cpfHash(b.cpf)).hash:undefined)}catch{return Response.json({error:'Informe um CPF válido.'},{status:400,headers:privateHeaders})}}
+export async function PATCH(req:Request){if(!await allowed()||!sameOrigin(req))return new Response(null,{status:403,headers:privateHeaders});try{const b=await req.json() as {id:string,status:string,deliveryDate:string};if(typeof b.id!=='string'||!['aguardando_confirmacao','confirmado','entregue','cancelado'].includes(b.status))throw Error('Status inválido.');if(typeof b.deliveryDate!=='string'||(b.deliveryDate&&(!/^\d{4}-\d{2}-\d{2}$/.test(b.deliveryDate)||!Number.isFinite(Date.parse(b.deliveryDate))||new Date(b.deliveryDate).toISOString().slice(0,10)!==b.deliveryDate)))throw Error('Data inválida.');const updated=await getDb().update(orders).set({status:b.status,deliveryDate:b.deliveryDate||null}).where(eq(orders.id,b.id)).returning({id:orders.id});if(!updated.length)return new Response(null,{status:404});return Response.json({ok:true},{headers:privateHeaders})}catch(e){return Response.json({error:e instanceof Error?e.message:'Não foi possível salvar.'},{status:400,headers:privateHeaders})}}

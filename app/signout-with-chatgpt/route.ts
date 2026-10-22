@@ -1,0 +1,3 @@
+import {NextResponse} from 'next/server';
+import {backendOrigin,safePath,secure,sessionName,flowName} from '../chatgpt-auth';
+export async function GET(req:Request){const url=new URL(req.url),path=safePath(url.searchParams.get('return_to')||'/');const logout=new URL('/signout-with-chatgpt',backendOrigin());logout.searchParams.set('return_to','/sair?return_to='+encodeURIComponent(path));const r=NextResponse.redirect(logout);for(const name of [sessionName(),flowName()])r.cookies.set(name,'',{httpOnly:true,secure:secure(),sameSite:'lax',path:'/',maxAge:0});r.headers.set('Cache-Control','no-store');return r;}

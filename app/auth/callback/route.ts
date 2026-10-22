@@ -1,0 +1,6 @@
+import {NextResponse} from 'next/server';
+import {cookies} from 'next/headers';
+import {appOrigin,backendOrigin,safePath,secure,sessionName,flowName} from '../../chatgpt-auth';
+import {verifySession} from '@/lib/bridge-session';
+export const dynamic='force-dynamic';
+export async function GET(req:Request){let dest:NextResponse;try{const u=new URL(req.url),flow=JSON.parse((await cookies()).get(flowName())?.value||'null');if(!flow||!u.searchParams.get('code')||u.searchParams.get('state')!==flow.state)throw Error();const r=await fetch(backendOrigin()+'/api/bridge/exchange',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:u.searchParams.get('code'),verifier:flow.verifier}),cache:'no-store',signal:AbortSignal.timeout(15000)});const b=await r.json() as {token:string};if(!r.ok||!process.env.SCOPPIA_BRIDGE_SECRET||!await verifySession(b.token,process.env.SCOPPIA_BRIDGE_SECRET))throw Error();dest=NextResponse.redirect(new URL(safePath(flow.returnTo),appOrigin()));dest.cookies.set(sessionName(),b.token,{httpOnly:true,secure:secure(),sameSite:'lax',path:'/',maxAge:7*86400});}catch{dest=NextResponse.redirect(new URL('/erro-conexao',appOrigin()));}dest.cookies.set(flowName(),'',{httpOnly:true,secure:secure(),sameSite:'lax',path:'/',maxAge:0});dest.headers.set('Cache-Control','no-store');return dest;}
