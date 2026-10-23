@@ -1,0 +1,5 @@
+'use client';
+import {paymentMethods} from '@/lib/payments';
+export default function PaymentMethods({value,onChange}:{value:string,onChange:(value:string)=>void}){
+ return <fieldset className="paymentmethods" aria-describedby="payment-help"><legend>Como você prefere pagar?</legend><p id="payment-help">Selecione uma forma de pagamento para este pedido. Aceitamos Alelo Refeição e Alelo Alimentação.</p><div className="paymentgrid">{paymentMethods.map(p=><label key={p.id} className={value===p.id?'paymentoption chosen':'paymentoption'}><input type="checkbox" name="paymentMethod" value={p.id} checked={value===p.id} onChange={e=>onChange(e.target.checked?p.id:'')}/><span><b>{p.label}</b><span className="paymentbrands">{p.networks.map(n=><span key={n} className={n.startsWith('Alelo')?'alelo':n==='PIX'?'pix':''}>{n}</span>)}</span></span></label>)}</div><p className="muted">A forma escolhida será incluída no pedido. O pagamento será combinado com a equipe pelo WhatsApp.</p>{!value?<p className="muted">Marque uma opção para continuar.</p>:null}</fieldset>;
+}
