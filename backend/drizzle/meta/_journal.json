@@ -43,6 +43,20 @@
       "when": 1792714970009,
       "tag": "0005_lean_bloodscream",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792718456220,
+      "tag": "0006_wild_professor_monster",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1792745673141,
+      "tag": "0007_even_ben_urich",
+      "breakpoints": true
     }
   ]
 }

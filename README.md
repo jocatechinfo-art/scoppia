@@ -18,3 +18,12 @@ Login: /signin-with-chatgpt inicia autorização com PKCE no serviço existente.
 Pedido: salvo como aguardando confirmação antes de abrir o WhatsApp. O cliente precisa enviar a mensagem. Administrador scoppiagourmet@gmail.com confirma o pedido e registra a previsão em /admin/pedidos. Clientes consultam /minha-conta. Nenhum pedido é marcado automaticamente como confirmado.
 
 Validação local: verify-bridge.mjs testa o fluxo entre Next.js local em 3000 e backend local em 5173, com mocks de login do starter e dados sintéticos. Não executa envio de mensagens. O banco local e os segredos não fazem parte deste repositório.
+
+
+## Acesso do cliente por CPF e senha
+
+Clientes usam `/entrar`, com Better Auth e senha de no mínimo 10 caracteres. O CPF é indexado por HMAC; senhas usam o hash com salt da biblioteca e sessões ficam em cookie HttpOnly/Secure. A administração continua autenticada separadamente e restrita ao e-mail autorizado.
+
+Cadastros antigos e recuperação: após verificar a identidade no atendimento, o administrador gera um código em `/admin/pedidos`. O cliente informa CPF, código e nova senha em Minha conta → Esqueci a senha / cadastro antigo. O código expira em 30 minutos, é de uso único e a recuperação revoga as sessões anteriores. Pedidos históricos e identificadores de clientes são preservados.
+
+Endereços novos usam CEP, rua, número, complemento, bairro, cidade e UF. Endereços antigos continuam registrados e devem ser completados com CEP na próxima atualização. O calendário e a API exigem sete dias de antecedência, calculados no fuso de São Paulo. As migrações 0006/0007 acrescentam tabelas e campos sem apagar os registros existentes.
