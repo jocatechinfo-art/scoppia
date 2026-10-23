@@ -1,0 +1,10 @@
+'use client';
+import {useEffect,useState} from 'react';
+import type {MenuItem} from '@/lib/menu';
+import type {Rule} from './combo-builder';
+export default function ComboSettings({items}:{items:MenuItem[]}){
+ const [rules,setRules]=useState<Rule[]>([]),[notice,setNotice]=useState(''),[busy,setBusy]=useState('');
+ useEffect(()=>{fetch('/api/combo-rules',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();setRules(await r.json())}).catch(()=>setNotice('Não foi possível carregar as regras dos combos. Atualize a página.'))},[]);
+ async function save(e:React.FormEvent<HTMLFormElement>,id:string){e.preventDefault();const minPerFlavor=Number(new FormData(e.currentTarget).get('minimum'));setBusy(id);setNotice('');try{const r=await fetch('/api/combo-rules',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,minPerFlavor})});const b=await r.json() as {error?:string};if(!r.ok)throw Error(b.error);setRules(old=>old.map(v=>v.id===id?{...v,minPerFlavor}:v));setNotice('Regra salva. O mínimo será verificado nos próximos pedidos.')}catch(e){setNotice(e instanceof Error?e.message:'Não foi possível salvar.')}finally{setBusy('')}}
+ return <section className="bulkprices"><span className="eyebrow">CONFIGURAÇÃO DOS COMBOS</span><h2>Travas de seleção</h2><p>Edite o mínimo de marmitas por sabor em cada combo. A seleção sempre deve completar exatamente a quantidade do combo. Pedidos já registrados mantêm sua composição.</p>{!rules.length&&!notice?<p>Carregando regras…</p>:null}<div className="comborules">{rules.map(r=>{const i=items.find(i=>i.id===r.id);return <form key={r.id} onSubmit={e=>save(e,r.id)}><h3>{i?.name||`Combo de ${r.count}`} · {i?.sizes[0]}</h3><p>Limite total: <b>{r.count} marmitas</b></p><label>Mínimo por sabor<input key={r.minPerFlavor} name="minimum" type="number" min="1" max={r.count} step="1" defaultValue={r.minPerFlavor} required disabled={busy!==''}/></label><button className="secondary" disabled={busy!==''}>{busy===r.id?'Salvando…':'Salvar trava'}</button></form>})}</div><p role="status">{notice}</p></section>;
+}

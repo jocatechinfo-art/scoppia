@@ -20,3 +20,5 @@ export const menuPriceState=sqliteTable('menu_price_state',{
 export const menuPriceChanges=sqliteTable('menu_price_changes',{
  id:text('id').primaryKey(),adminEmail:text('admin_email').notNull(),createdAt:text('created_at').notNull(),scope:text('scope').notNull(),fromCents:integer('from_cents').notNull(),toCents:integer('to_cents').notNull(),changedCount:integer('changed_count').notNull(),details:text('details').notNull()
 });
+
+export const comboRules=sqliteTable('combo_rules',{id:text('id').primaryKey(),minPerFlavor:integer('min_per_flavor').notNull()});
