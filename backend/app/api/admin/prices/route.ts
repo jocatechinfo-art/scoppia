@@ -1,12 +1,12 @@
 import {env} from 'cloudflare:workers';
-import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {getAdminUser} from '@/lib/admin-auth';
 import {catalogSnapshot,findPriceMatches} from '@/lib/catalog';
 import {menu} from '@/lib/menu';
 import {ADMIN,privateHeaders,sameOrigin} from '@/lib/customers';
 export const dynamic='force-dynamic';
-export async function POST(req:Request){
- const u=await getChatGPTUser();if(u?.email.toLowerCase()!==ADMIN)return Response.json({error:'Acesso restrito ao administrador.'},{status:403,headers:privateHeaders});if(!sameOrigin(req))return new Response(null,{status:403});
- try{const b=await req.json() as {action:string,scope:string,fromCents:number,toCents:number,revision?:number,fingerprint?:string};
+export async function POST(req:Request){const raw=await req.text();
+ const u=await getAdminUser();if(u?.email.toLowerCase()!==ADMIN)return Response.json({error:'Acesso restrito ao administrador.'},{status:403,headers:privateHeaders});if(!sameOrigin(req))return new Response(null,{status:403});
+ try{const b=JSON.parse(raw) as {action:string,scope:string,fromCents:number,toCents:number,revision?:number,fingerprint?:string};
  if(!['preview','apply'].includes(b.action)||!['marmitas','todos',...menu.map(i=>i.category)].includes(b.scope)||!Number.isInteger(b.fromCents)||!Number.isInteger(b.toCents)||b.fromCents<1||b.toCents<1||b.fromCents>999999||b.toCents>999999||b.fromCents===b.toCents)throw Error('Informe valores diferentes e válidos, maiores que zero.');
  const current=await catalogSnapshot(),matches=findPriceMatches(current.items,b.scope,b.fromCents,b.toCents);
  if(b.action==='preview')return Response.json({revision:current.revision,fingerprint:current.fingerprint,matches},{headers:privateHeaders});

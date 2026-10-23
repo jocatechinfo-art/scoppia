@@ -1,0 +1,2 @@
+export function adminCookieName(origin:string){return (new URL(origin).protocol==='https:'?'__Secure-':'')+'scoppia_admin_session'}
+export function proxyAdminSetCookie(header:string,backend:string,client:string){const source=adminCookieName(backend);if(!header.startsWith(source+'='))return null;let value=adminCookieName(client)+header.slice(source.length);if(new URL(client).protocol==='https:'&&!/;\s*secure(?:;|$)/i.test(value))value+='; Secure';return value}

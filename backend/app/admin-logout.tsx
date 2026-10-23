@@ -1,0 +1,3 @@
+'use client';
+import {useState} from 'react';
+export default function AdminLogout(){const [busy,setBusy]=useState(false),[notice,setNotice]=useState('');async function logout(){setBusy(true);try{const r=await fetch('/api/admin/session',{method:'DELETE',headers:{'Content-Type':'application/json'},body:'{}'});if(!r.ok)throw Error();window.location.assign('/admin')}catch{setNotice('Não foi possível sair. Tente novamente.');setBusy(false)}}return <><button type="button" className="secondary" disabled={busy} onClick={()=>void logout()}>{busy?'Saindo…':'Sair da administração'}</button>{notice?<p role="alert">{notice}</p>:null}</>}
