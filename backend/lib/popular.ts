@@ -5,7 +5,7 @@ import {catalogSnapshot,mealCategories} from './catalog';
 // Aggregate immutable order snapshots. A whole combo multiplies its flavor quantities.
 export const popularitySql=sql`WITH accepted AS (
  SELECT CASE WHEN json_valid(items) THEN items ELSE '[]' END AS items
- FROM orders WHERE status IN ('confirmado','entregue')
+ FROM orders WHERE deleted_at IS NULL AND status IN ('confirmado','entregue')
 ), objects AS (
  SELECT CASE WHEN j.type='object' THEN j.value ELSE '{}' END AS item
  FROM accepted, json_each(accepted.items) j
