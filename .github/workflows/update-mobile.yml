@@ -1,0 +1,38 @@
+name: Update Scoppia mobile storefront
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-mobile.zip, .github/workflows/update-mobile.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: a7624457deccbb7f8de33c4bf24855b8cbd94e40520da45aefefd47e23b590c6
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-mobile.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Improve mobile navigation, touch controls, combo layout and checkout'
+          git push origin HEAD:main
