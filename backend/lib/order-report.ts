@@ -8,3 +8,6 @@ export function orderItemsText(order:Order){return order.items.map(i=>`${i.qty} 
 export function csvCell(value:unknown){return '"'+String(value??'').replace(/^[\s=+@-]/,"'$&").replaceAll('"','""')+'"'}
 
 export function monthLabel(month:string){const names=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];return names[Number(month.slice(5,7))-1]+' '+month.slice(0,4)}
+
+export function isCountedOrder(order:{status:string}){return order.status!=='cancelado'}
+export function matchesOrderStatus(order:{status:string},status:string){return status?order.status===status:isCountedOrder(order)}
