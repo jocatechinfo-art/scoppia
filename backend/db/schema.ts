@@ -40,3 +40,7 @@ export const authVerification=sqliteTable('auth_verification',{
 export const authRateLimit=sqliteTable('auth_rate_limit',{id:text('id').primaryKey(),key:text('key').notNull().unique(),count:integer('count').notNull(),lastRequest:integer('last_request').notNull()});
 export const customerAccessCodes=sqliteTable('customer_access_codes',{hash:text('hash').primaryKey(),customerId:text('customer_id').notNull().references(()=>customers.id),expiresAt:integer('expires_at').notNull()});
 export const customerAuthAttempts=sqliteTable('customer_auth_attempts',{key:text('key').primaryKey(),count:integer('count').notNull(),expiresAt:integer('expires_at').notNull()});
+
+export const productionProgress=sqliteTable('production_progress',{
+ id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),itemKey:text('item_key').notNull(),readyQty:integer('ready_qty').notNull().default(0),updatedAt:text('updated_at').notNull()
+},t=>[index('production_progress_order').on(t.orderId)]);

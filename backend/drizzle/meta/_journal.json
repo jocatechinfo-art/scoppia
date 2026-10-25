@@ -71,6 +71,13 @@
       "when": 1792782064829,
       "tag": "0009_open_piledriver",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1792942608337,
+      "tag": "0010_faithful_pepper_potts",
+      "breakpoints": true
     }
   ]
 }

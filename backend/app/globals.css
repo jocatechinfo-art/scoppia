@@ -220,3 +220,60 @@
 @media screen and (min-width:651px) and (max-width:1000px){
 .orders-relation{overflow:visible}.orders-relation table{display:block;min-width:0;width:100%}.orders-relation thead{position:absolute;width:1px;height:1px;padding:0;clip-path:inset(50%);overflow:hidden;white-space:nowrap}.orders-relation tbody{display:grid;gap:14px}.orders-relation tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:1px solid #e5dccf;border-radius:13px;background:#fffdf9;overflow:hidden;padding:8px}.orders-relation td{display:block;padding:12px 10px!important;min-width:0!important;max-width:none;border:0;font-size:14px;line-height:1.6}.orders-relation td:before{content:attr(data-label);display:block;color:#a18b75;font-size:10px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;font-weight:400}.orders-relation .relation-customer{grid-column:1/-1;border-bottom:1px solid #efe6dc;padding-bottom:16px!important}.orders-relation .relation-customer:before{display:none}.relation-customer b{font-size:16px}.relation-number{font-size:10px;margin-top:5px}.orders-relation td:nth-child(4),.orders-relation td:nth-child(7){grid-column:1/-1}.orders-relation td:nth-child(4){border-top:1px solid #efe6dc;border-bottom:1px solid #efe6dc}.orders-relation td:nth-child(7){border-top:1px solid #efe6dc}.order-status-badge{font-size:10px;padding:5px 7px}.relation-items summary{min-height:40px;font-size:14px}.orders-relation ul{font-size:13px}.orders-relation details:not(.relation-items){font-size:13px}.orders-relation small{font-size:11px}.orders-relation details:not(.relation-items) summary{min-height:38px;display:flex;align-items:center}
 }
+
+.production-board{min-width:0;width:100%;max-width:1264px;margin:24px auto;color:#51392b}
+.production-heading h1,.production-heading h2{font:clamp(28px,4vw,40px)/1.15 Georgia,serif;margin:12px 0}
+.production-heading p,.production-note{font-size:13px;line-height:1.7;color:#84715e;max-width:780px}
+.production-toolbar{display:flex;align-items:end;gap:10px;padding:18px;background:#fffdf9;border:1px solid #e5dccf;border-radius:12px}
+.production-toolbar label{display:grid;gap:8px;font-size:12px;min-width:0;flex:1 1 180px}
+.production-toolbar input{width:100%;min-width:0;max-width:100%;min-height:44px;padding:10px;border:1px solid #dfd3c2;border-radius:8px;background:#faf7f1}
+.production-toolbar button{min-height:44px;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 14px}
+.production-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+.production-totals>div{min-width:0;padding:20px;background:#fffdf9;border:1px solid #e5dccf;border-radius:12px}
+.production-totals small{display:block;font-size:12px;color:#84715e;min-height:32px;line-height:1.5}
+.production-totals b{display:block;font-size:30px;margin-top:12px;overflow-wrap:anywhere}
+.production-totals>div:last-child{background:#f2e6d8}.production-totals>div:nth-child(3){background:#edf1e6}
+.production-filters button{margin:0;min-height:44px;padding:11px 18px}
+.production-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.production-item{padding:20px;min-width:0;overflow:visible;background:#fffdf9;border:1px solid #e5dccf;border-radius:13px;display:flex;flex-direction:column}
+.production-item-title{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}
+.production-item-title h3{flex-basis:100%;font:24px/1.25 Georgia,serif;margin:0 0 8px;overflow-wrap:anywhere}
+.production-item-title>span,.production-item-title>small{font-size:11px;background:#f2e9dd;padding:5px 8px;border-radius:5px}
+.production-item .custom-description{font-size:13px;line-height:1.6;margin:14px 0}
+.production-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:20px 0;font-size:10px;color:#89715c}
+.production-counts span{min-width:0;padding:10px 6px;background:#f7f2e9;border-radius:7px;text-align:center}
+.production-counts b{display:block;font-size:23px;color:#573728;margin-top:8px;overflow-wrap:anywhere}
+.production-check{display:flex;gap:8px;align-items:center;min-height:48px;border:1px solid #d3ddc5;border-radius:8px;padding:11px;color:#526b40;font-size:12px;background:#f1f5eb;cursor:pointer;margin-top:auto;overflow-wrap:anywhere}
+.production-check input{width:20px;height:20px;margin:0;accent-color:#5b7549;flex-shrink:0}.production-check svg{display:none}
+.production-item.is-ready{border-color:#b8c8a8}.production-item.is-ready .production-check{background:#e4eddc}
+.production-orders{margin:28px 0;padding:18px;border:1px solid #e5dccf;border-radius:12px;background:#fffdf9;font-size:13px;overflow-wrap:anywhere}
+.production-orders summary{cursor:pointer;min-height:32px;line-height:1.5}.production-orders p{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;line-height:1.6;padding:10px 0;border-bottom:1px solid #eee5d9}.production-orders p:last-child{border-bottom:0}
+.production-error{padding:14px;border:1px solid #e6c5bd;border-radius:9px;color:#a14632}
+.orders-dashboard .order-whatsapp{display:block!important;width:100%;min-width:0;margin:14px 0;padding:12px;border:1px solid #d6decc;border-radius:9px;background:#f7f9f2;overflow-wrap:anywhere}
+.order-whatsapp summary{display:flex!important;align-items:center;gap:7px;cursor:pointer;font-size:12px;line-height:1.5;min-height:32px;color:#526b40;white-space:normal}
+.order-whatsapp summary svg{flex-shrink:0}.order-whatsapp label{display:grid;gap:8px;font-size:12px;margin-top:14px;min-width:0}
+.order-whatsapp select{width:100%;min-width:0;max-width:100%;padding:10px;min-height:44px;background:#fff;border:1px solid #d6decc;border-radius:7px}
+.orders-dashboard .whatsapp-preview{white-space:pre-wrap;font-size:12px;line-height:1.7;overflow-wrap:anywhere;color:#5c654e}
+.order-whatsapp a{display:flex;justify-content:center;text-align:center;white-space:normal;padding:12px;font-size:12px;line-height:1.5;color:#526b40;min-width:0}
+@media screen{
+.orders-dashboard>*{min-width:0;max-width:100%}.orders-dashboard .order-view-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+.orders-dashboard .order-view-switch button{white-space:normal;min-width:0;line-height:1.5}
+.orders-dashboard .orders-relation table{table-layout:fixed;min-width:0}
+.orders-dashboard .orders-relation th,.orders-dashboard .orders-relation td{min-width:0!important;max-width:none;white-space:normal;overflow-wrap:anywhere}
+.orders-dashboard .relation-items summary{white-space:normal;flex-wrap:wrap}
+.orders-dashboard input,.orders-dashboard select{max-width:100%}
+}
+@media screen and (max-width:1000px){.production-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media screen and (max-width:650px){
+.production-board{margin:18px 0}.production-board.accountpage{padding:0 16px;margin:18px auto}
+.production-totals{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.production-totals>div{padding:16px}.production-totals small{font-size:11px}.production-totals b{font-size:27px}
+.production-list{grid-template-columns:minmax(0,1fr)}.production-item{padding:18px}
+.production-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;gap:9px}.production-toolbar label{grid-column:1/-1}.production-toolbar button{width:100%;min-width:0;font-size:12px;padding:10px}.production-toolbar input{font-size:16px;appearance:none}
+.production-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.production-filters button{min-width:0;font-size:12px;padding:10px 5px}
+.orders-dashboard .order-view-switch{grid-template-columns:1fr 1fr}.orders-dashboard .order-view-switch button:last-child{grid-column:1/-1}
+.orders-dashboard .orders-searchbar>*{min-width:0}.orders-dashboard .orders-search input{width:0;flex:1}
+.orders-dashboard .orders-cpf-filter{flex-wrap:wrap}.orders-dashboard .orders-cpf-filter label{flex-basis:100%}.orders-dashboard .orders-cpf-filter button{width:100%}
+.orders-dashboard .orders-relation tr{width:100%}.orders-dashboard .orders-relation td:nth-child(3){grid-column:1/-1}
+.orders-dashboard .orders-relation .order-whatsapp{margin:12px 0 0}
+}
+@media print{.production-check{border:0;background:none;padding:0}.production-check input{appearance:auto}.production-list{grid-template-columns:repeat(2,minmax(0,1fr))}.production-item{break-inside:avoid}.order-whatsapp{display:none!important}.production-orders{display:block}.production-orders::details-content{content-visibility:visible;display:block}}
