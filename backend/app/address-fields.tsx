@@ -1,4 +1,5 @@
 'use client';
+import DeliveryQuote from './delivery-quote';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {emptyAddress,formatAddress,type DeliveryAddress} from '@/lib/delivery';
 export default function AddressFields({initial=null}:{initial?:DeliveryAddress|null}){
@@ -31,5 +32,5 @@ export default function AddressFields({initial=null}:{initial?:DeliveryAddress|n
  <label>Bairro<input name="neighborhood" autoComplete="address-level3" required minLength={2} maxLength={100} value={value.neighborhood} onChange={e=>update('neighborhood',e.target.value)}/></label>
  <label>Cidade<input name="city" autoComplete="address-level2" required minLength={2} maxLength={100} value={value.city} onChange={e=>update('city',e.target.value)}/></label>
  <label>Estado<select name="state" autoComplete="address-level1" required value={value.state} onChange={e=>update('state',e.target.value)}><option value="">Selecione</option>{['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(uf=><option key={uf}>{uf}</option>)}</select></label>
- </div></fieldset>
+ </div><DeliveryQuote cep={value.cep}/></fieldset>
 }

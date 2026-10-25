@@ -6,7 +6,7 @@ import {paymentLabel} from '@/lib/payments';
 import {useEffect,useState} from 'react';
 export type Profile={name:string,phone:string,address:string,addressDetails:DeliveryAddress|null,cpfMasked:string};
 type RecentOrder={id:string,orderNumber?:number|null,customerName:string,createdAt:string,totalCents:number,status:string,paymentMethod?:string|null,deliveryDate:string|null,address:string,addressDetails:DeliveryAddress|null,items:{name:string,qty:number,size:string,customDescription?:string,flavors?:{name:string,qty:number}[]}[]};
-const statuses:Record<string,string>={aguardando_confirmacao:'Aguardando confirmação',confirmado:'Confirmado',entregue:'Entregue',cancelado:'Cancelado'};
+import {statuses} from '@/lib/order-status';
 export default function CustomerFields({returnTo='/pedido',onReady,onAuthenticated}:{returnTo?:string,onReady?:(ready:boolean)=>void,onAuthenticated?:(authenticated:boolean)=>void}){
  const [data,setData]=useState<{authenticated:boolean,profile:Profile|null}|null>(null),[error,setError]=useState(''),[cpf,setCpf]=useState(''),[notice,setNotice]=useState(''),[lookupError,setLookupError]=useState(false),[loading,setLoading]=useState(false),[recent,setRecent]=useState<RecentOrder[]|null>(null),[fields,setFields]=useState({name:'',phone:'',address:''}),[delivery,setDelivery]=useState<DeliveryAddress|null>(null);
  useEffect(()=>{fetch('/api/customer',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();const b=await r.json() as {authenticated:boolean,profile:Profile|null};setData(b);if(b.profile){setFields(b.profile);setDelivery(b.profile.addressDetails)}}).catch(()=>setError('Não foi possível carregar seu cadastro. Atualize a página.'))},[]);
