@@ -277,3 +277,21 @@
 .orders-dashboard .orders-relation .order-whatsapp{margin:12px 0 0}
 }
 @media print{.production-check{border:0;background:none;padding:0}.production-check input{appearance:auto}.production-list{grid-template-columns:repeat(2,minmax(0,1fr))}.production-item{break-inside:avoid}.order-whatsapp{display:none!important}.production-orders{display:block}.production-orders::details-content{content-visibility:visible;display:block}}
+
+.production-quantity{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;margin:12px 0 16px;padding-top:14px;border-top:1px solid #e5dccf}
+.production-quantity label,.inventory-entry label,.inventory-search>label:first-child{display:grid;gap:7px;font-size:12px;min-width:0}
+.production-quantity input,.inventory-entry input,.inventory-entry select,.inventory-search input[type=search]{width:100%;min-width:0;max-width:100%;min-height:44px;border:1px solid #ddcfbc;border-radius:8px;padding:10px;background:#fffdf9}
+.production-quantity button{width:100%;min-height:44px;margin:0;padding:10px;font-size:12px;justify-content:center}
+.stock-note{font-size:12px;line-height:1.6;color:#5d7450;overflow-wrap:anywhere}
+.inventory-board{min-width:0;margin:24px 0}.inventory-board>h2{margin:12px 0;font-size:36px}.inventory-board>p{max-width:800px;font-size:13px;line-height:1.7;color:#84715e}
+.inventory-entry{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:14px;align-items:end;padding:20px;border:1px solid #e5dccf;border-radius:13px;background:#fffdf9;margin:22px 0}
+.inventory-entry h3{grid-column:1/-1;font:24px Georgia,serif;margin:0 0 4px}.inventory-entry button{margin:0;min-height:44px}
+.inventory-search{align-items:end}.inventory-search>label:first-child{flex:1 1 200px}.inventory-toggle{display:flex;align-items:center;gap:8px;font-size:12px;min-height:44px}.inventory-toggle input{width:20px;height:20px;accent-color:#6a7e50}
+.inventory-balance{color:#63744f;font-size:13px}.inventory-balance b{font-size:32px;margin-right:8px}
+.order-stock{display:block;min-width:0;margin:14px 0;padding:12px;border:1px solid #d1ddc7;border-radius:9px;background:#f0f5e9;overflow-wrap:anywhere}
+.orders-dashboard .order-stock summary{min-height:32px;font-size:12px;line-height:1.5;cursor:pointer;color:#536d40;white-space:normal}
+.order-stock p{font-size:12px;line-height:1.6;margin:12px 0}.order-stock p span{display:block}.order-stock small{font-size:11px;line-height:1.6;color:#85745f;display:block}
+@media screen{.orders-dashboard .order-view-switch{grid-template-columns:repeat(4,minmax(0,1fr))}.orders-dashboard .order-view-switch button:last-child{grid-column:auto}}
+@media screen and (max-width:900px){.inventory-entry{grid-template-columns:1fr 1fr}.inventory-entry label:first-of-type{grid-column:1/-1}}
+@media screen and (max-width:650px){.orders-dashboard .order-view-switch{grid-template-columns:repeat(2,minmax(0,1fr))}.inventory-entry{padding:14px;gap:12px;grid-template-columns:minmax(0,1fr)}.inventory-entry>*{grid-column:1!important}.inventory-entry input,.inventory-entry select,.production-quantity input{font-size:16px}.inventory-search{display:grid;grid-template-columns:minmax(0,1fr)}.inventory-search button{width:100%}}
+@media print{.production-quantity,.inventory-entry,.inventory-search{display:none!important}}

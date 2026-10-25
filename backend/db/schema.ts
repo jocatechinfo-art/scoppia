@@ -5,7 +5,7 @@ export const customers=sqliteTable('customers',{
 });
 export const orderNumbers=sqliteTable('order_numbers',{id:integer('id').primaryKey({autoIncrement:true}),requestId:text('request_id').notNull().unique()});
 export const orders=sqliteTable('orders',{
- id:text('id').primaryKey(),orderNumber:integer('order_number').unique(),deletedAt:text('deleted_at'),customerId:text('customer_id').notNull().references(()=>customers.id),requestId:text('request_id').notNull().unique(),items:text('items').notNull(),totalCents:integer('total_cents').notNull(),customerName:text('customer_name').notNull(),phone:text('phone').notNull(),address:text('address').notNull(),addressDetails:text('address_details'),preferredDate:text('preferred_date').notNull(),notes:text('notes').notNull(),paymentMethod:text('payment_method'),status:text('status').notNull().default('aguardando_confirmacao'),deliveryDate:text('delivery_date'),createdAt:text('created_at').notNull()
+ id:text('id').primaryKey(),orderNumber:integer('order_number').unique(),deletedAt:text('deleted_at'),stockBatchId:text('stock_batch_id'),customerId:text('customer_id').notNull().references(()=>customers.id),requestId:text('request_id').notNull().unique(),items:text('items').notNull(),totalCents:integer('total_cents').notNull(),customerName:text('customer_name').notNull(),phone:text('phone').notNull(),address:text('address').notNull(),addressDetails:text('address_details'),preferredDate:text('preferred_date').notNull(),notes:text('notes').notNull(),paymentMethod:text('payment_method'),status:text('status').notNull().default('aguardando_confirmacao'),deliveryDate:text('delivery_date'),createdAt:text('created_at').notNull()
 },t=>[index('orders_customer_created').on(t.customerId,t.createdAt)]);
 
 export const bridgeCodes=sqliteTable('bridge_codes',{
@@ -44,3 +44,6 @@ export const customerAuthAttempts=sqliteTable('customer_auth_attempts',{key:text
 export const productionProgress=sqliteTable('production_progress',{
  id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),itemKey:text('item_key').notNull(),readyQty:integer('ready_qty').notNull().default(0),updatedAt:text('updated_at').notNull()
 },t=>[index('production_progress_order').on(t.orderId)]);
+
+export const inventory=sqliteTable('inventory',{itemKey:text('item_key').primaryKey(),quantity:integer('quantity').notNull().default(0),updatedAt:text('updated_at').notNull()});
+export const stockAllocations=sqliteTable('stock_allocations',{id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),itemKey:text('item_key').notNull(),qty:integer('qty').notNull()},t=>[index('stock_allocations_item').on(t.itemKey),index('stock_allocations_order').on(t.orderId)]);
