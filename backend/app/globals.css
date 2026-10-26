@@ -390,3 +390,5 @@
   header nav a{white-space:nowrap;min-height:36px;display:inline-flex;align-items:center}
   header>.bag{margin-left:auto;white-space:nowrap;flex-shrink:0}
 }
+
+.manual-order-whatsapp{margin:20px 0;min-width:0}.manual-order-whatsapp .order-whatsapp{display:block;padding:16px;border:1px solid #d6decc;border-radius:10px;background:#f7f9f2;overflow-wrap:anywhere}.manual-order-whatsapp .whatsapp-preview{white-space:pre-wrap;font-size:13px;line-height:1.7;overflow-wrap:anywhere}.manual-order-whatsapp .order-whatsapp select{margin:8px 0;width:100%}.manual-order-whatsapp .order-whatsapp a{white-space:normal;line-height:1.6}
