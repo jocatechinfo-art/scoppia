@@ -38,12 +38,12 @@ export async function POST(req:Request,{params}:{params:Promise<{action:string}>
  if(!activated)throw Error('Este CPF já possui acesso. Entre com sua senha ou solicite um código de recuperação à Scoppia.');
  const context=await auth.$context;const password=await context.password.hash(body.password);
  await db.batch([db.update(authAccount).set({password,updatedAt:new Date()}).where(and(eq(authAccount.userId,user.id),eq(authAccount.providerId,'credential'))),db.delete(authSession).where(eq(authSession.userId,user.id))]);
- if(existing)await db.update(customers).set({userId:user.id,updatedAt:new Date().toISOString()}).where(eq(customers.id,existing.id));
+ if(existing){const linked=await db.update(customers).set({userId:user.id,adminVersion:crypto.randomUUID(),updatedAt:new Date().toISOString()}).where(and(eq(customers.id,existing.id),eq(customers.cpfHash,hash),eq(customers.userId,existing.userId))).returning({id:customers.id});if(!linked.length)throw Error('O cadastro mudou. Solicite um novo código de ativação.');}
  return respond(await forward('sign-in/email',{email,password:body.password,rememberMe:true}));
  }
  const name=existing?.name||(typeof body.name==='string'?body.name.trim():'');if(name.length<2||name.length>100)throw Error('Informe seu nome completo.');
  const r=await forward('sign-up/email',{name,email,password:body.password});
- if(r.ok){const [created]=await db.select().from(authUser).where(eq(authUser.email,email));if(!created)throw Error(invalid);if(existing)await db.update(customers).set({userId:created.id,updatedAt:new Date().toISOString()}).where(eq(customers.id,existing.id));else await saveCustomer(created.id,body);}
+ if(r.ok){const [created]=await db.select().from(authUser).where(eq(authUser.email,email));if(!created)throw Error(invalid);if(existing){const linked=await db.update(customers).set({userId:created.id,adminVersion:crypto.randomUUID(),updatedAt:new Date().toISOString()}).where(and(eq(customers.id,existing.id),eq(customers.cpfHash,hash),eq(customers.userId,existing.userId))).returning({id:customers.id});if(!linked.length)throw Error('O cadastro mudou. Solicite um novo código de ativação.');}else await saveCustomer(created.id,body);}
  return respond(r);
  }catch(e){return Response.json({error:e instanceof Error?e.message:invalid},{status:400,headers:privateHeaders})}
 }

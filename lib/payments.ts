@@ -5,4 +5,4 @@ export const paymentMethods=[
  {id:'alelo_refeicao',label:'Alelo Refeição',networks:['Alelo Refeição']},
  {id:'alelo_alimentacao',label:'Alelo Alimentação',networks:['Alelo Alimentação']}
 ] as const;
-export function paymentLabel(value:unknown){return paymentMethods.find(p=>p.id===value)?.label}
+export function paymentLabel(value:unknown){return value==='dinheiro'?'Dinheiro':paymentMethods.find(p=>p.id===value)?.label}
