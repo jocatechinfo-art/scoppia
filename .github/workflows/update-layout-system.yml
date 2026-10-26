@@ -1,0 +1,38 @@
+name: Refine responsive system layout
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-layout-system.zip, .github/workflows/update-layout-system.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: 04c31080360589b14d80c5a99ec3bdf4777081353ee88c7b9f586ff8c0e99a47
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-layout-system.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Refine client layout form spacing and tablet navigation'
+          git push origin HEAD:main
