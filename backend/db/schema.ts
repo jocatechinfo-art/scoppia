@@ -1,7 +1,7 @@
 import {sqliteTable,text,integer,index} from 'drizzle-orm/sqlite-core';
 export const availability=sqliteTable('availability',{id:text('id').primaryKey(),active:integer('active',{mode:'boolean'}).notNull().default(true)});
 export const customers=sqliteTable('customers',{
- id:text('id').primaryKey(),userId:text('user_id').notNull().unique(),cpfHash:text('cpf_hash').notNull().unique(),cpfLast:text('cpf_last').notNull(),name:text('name').notNull(),phone:text('phone').notNull(),address:text('address').notNull(),addressDetails:text('address_details'),source:text('source').notNull().default('site'),adminVersion:text('admin_version').notNull().default(''),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()
+ id:text('id').primaryKey(),userId:text('user_id').notNull().unique(),cpfHash:text('cpf_hash').notNull().unique(),cpfLast:text('cpf_last').notNull(),name:text('name').notNull(),phone:text('phone').notNull(),address:text('address').notNull(),addressDetails:text('address_details'),deletedAt:text('deleted_at'),source:text('source').notNull().default('site'),adminVersion:text('admin_version').notNull().default(''),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()
 });
 export const orderNumbers=sqliteTable('order_numbers',{id:integer('id').primaryKey({autoIncrement:true}),requestId:text('request_id').notNull().unique()});
 export const orders=sqliteTable('orders',{

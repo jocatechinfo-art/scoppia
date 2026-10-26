@@ -1,5 +1,5 @@
 import {env} from 'cloudflare:workers';
-import {eq} from 'drizzle-orm';
+import {eq,and,isNull} from 'drizzle-orm';
 import {getDb} from '@/db';
 import {customers,authUser} from '@/db/schema';
 import {normalizeCpf} from './cpf';
@@ -13,8 +13,8 @@ export function profileFields(b:{name:unknown,phone:unknown,address:unknown,addr
 }
 export async function saveCustomer(userId:string,b:{cpf?:unknown,name:unknown,phone:unknown,address:unknown,addressDetails?:unknown}){
  const db=getDb();const fields=profileFields(b);const [existing]=await db.select().from(customers).where(eq(customers.userId,userId));const now=new Date().toISOString();
- if(existing){if(b.cpf){const c=await cpfHash(b.cpf);if(c.hash!==existing.cpfHash)throw Error('O CPF está vinculado ao cadastro. Para corrigir, fale com a Scoppia.');}await db.update(customers).set({...fields,adminVersion:crypto.randomUUID(),updatedAt:now}).where(eq(customers.id,existing.id));return {...existing,...fields,updatedAt:now};}
- const c=await cpfHash(b.cpf);const [credential]=await db.select().from(authUser).where(eq(authUser.id,userId));if(!credential||credential.email!==c.hash+'@cpf.scoppia.invalid')throw Error('Use o CPF informado na criação da sua conta.');const row={source:'site',adminVersion:crypto.randomUUID(),id:crypto.randomUUID(),userId,cpfHash:c.hash,cpfLast:c.last,...fields,createdAt:now,updatedAt:now};
+ if(existing){if(existing.deletedAt)throw Error('Seu cadastro está excluído. Fale com a Scoppia para restaurá-lo antes de fazer novos pedidos.');if(b.cpf){const c=await cpfHash(b.cpf);if(c.hash!==existing.cpfHash)throw Error('O CPF está vinculado ao cadastro. Para corrigir, fale com a Scoppia.');}const saved=await db.update(customers).set({...fields,adminVersion:crypto.randomUUID(),updatedAt:now}).where(and(eq(customers.id,existing.id),isNull(customers.deletedAt))).returning({id:customers.id});if(!saved.length)throw Error('O cadastro foi excluído durante a atualização. Fale com a Scoppia.');return {...existing,...fields,updatedAt:now};}
+ const c=await cpfHash(b.cpf);const [credential]=await db.select().from(authUser).where(eq(authUser.id,userId));if(!credential||credential.email!==c.hash+'@cpf.scoppia.invalid')throw Error('Use o CPF informado na criação da sua conta.');const row={deletedAt:null,source:'site',adminVersion:crypto.randomUUID(),id:crypto.randomUUID(),userId,cpfHash:c.hash,cpfLast:c.last,...fields,createdAt:now,updatedAt:now};
  try{await db.insert(customers).values(row)}catch{throw Error('Não foi possível vincular este CPF à conta. Entre com o CPF e a senha do cadastro ou fale com a Scoppia.');}return row;
 }
 export function publicProfile(c:typeof customers.$inferSelect){return {name:c.name,phone:c.phone,address:c.address,addressDetails:c.addressDetails?JSON.parse(c.addressDetails):null,cpfMasked:'***.***.***-'+c.cpfLast};}
