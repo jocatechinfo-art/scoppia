@@ -1,0 +1,38 @@
+name: Add recoverable client exclusion
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-client-delete.zip, .github/workflows/update-client-delete.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: 3d1d3e75eb69353639413e056b220eed297ac167d5d34f0d92e292a572fac0f8
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-client-delete.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Add client exclusion with confirmation undo and restoration'
+          git push origin HEAD:main
