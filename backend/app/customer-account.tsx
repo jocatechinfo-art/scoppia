@@ -6,7 +6,7 @@ import {orderLabel} from '@/lib/order-number';
 import {useEffect,useState} from 'react';
 import {paymentLabel} from '@/lib/payments';
 import CustomerFields from './customer-fields';
-export type Order={id:string,entrySource?:string,orderNumber?:number|null,items:{name:string,size:string,qty:number,unitCents:number,customDescription?:string,pricePending?:boolean,flavors?:{name:string,qty:number}[]}[],totalCents:number,shippingFeeCents?:number|null,commerce?:Commerce,addressDetails?:string|null,customerName:string,phone:string,address:string,preferredDate:string,notes:string,paymentMethod?:string|null,status:string,deliveryDate:string|null,createdAt:string};
+export type Order={id:string,entrySource?:string,orderNumber?:number|null,items:{id?:string,name:string,size:string,qty:number,unitCents:number,customDescription?:string,pricePending?:boolean,flavors?:{id?:string,name:string,qty:number}[]}[],totalCents:number,shippingFeeCents?:number|null,commerce?:Commerce,addressDetails?:string|null,customerName:string,phone:string,address:string,preferredDate:string,notes:string,paymentMethod?:string|null,status:string,deliveryDate:string|null,createdAt:string};
 export {statuses} from '@/lib/order-status';
 import {statuses} from '@/lib/order-status';
 const brl=(v:number)=>(v/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
