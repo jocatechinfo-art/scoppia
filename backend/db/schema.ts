@@ -66,3 +66,6 @@ export const shoppingItems=sqliteTable('shopping_items',{
 export const shoppingPurchases=sqliteTable('shopping_purchases',{
  shoppingId:text('shopping_id').primaryKey().references(()=>shoppingItems.id),supplyKey:text('supply_key').notNull(),quantity:text('quantity').notNull(),unit:text('unit').notNull(),totalCents:integer('total_cents').notNull(),unitPriceCents:integer('unit_price_cents').notNull(),updatedAt:text('updated_at').notNull()
 },t=>[index('shopping_purchases_supply').on(t.supplyKey)]);
+export const orderProfits=sqliteTable('order_profits',{
+ orderId:text('order_id').primaryKey().references(()=>orders.id),version:text('version').notNull(),fingerprint:text('fingerprint').notNull(),inputs:text('inputs').notNull(),snapshot:text('snapshot').notNull(),actor:text('actor').notNull(),updatedAt:text('updated_at').notNull()
+});
