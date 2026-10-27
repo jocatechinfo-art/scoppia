@@ -1,4 +1,4 @@
-import type {CostItem,CostRecord,Ingredient,CostUnit} from './commerce-types';
+import type {CostItem,CostRecord,Ingredient,CostUnit,PurchasePrice} from './commerce-types';
 
 // Hypothetical purchase prices and cooking yields for an editable starting scenario.
 // These are not supplier quotations or measured Scoppia recipes.
@@ -84,11 +84,15 @@ const recipes:Record<string,Share[]>={
  '68':[['pumpkin',95],['flour',20],['chicken',55],['cheese',20],['seasoning',10]],
 };
 
+export function supplyCatalog(){return Object.entries(supplies).map(([key,s])=>({key,name:s.name,unit:s.unit||'g' as CostUnit,price:s.price,yield:s.yield})).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'))}
+export function ingredientSupplyKey(i:Ingredient){if(i.supplyKey!==undefined)return i.supplyKey;if(!i.estimated||i.quantity===undefined)return '';return supplyCatalog().find(s=>s.name===i.name&&s.unit===i.unit)?.key||''}
+export function priceRecipes(records:CostRecord[],prices:PurchasePrice[]):CostRecord[]{return records.map(r=>({...r,ingredients:r.ingredients.map(i=>{const key=ingredientSupplyKey(i),p=prices.find(p=>p.supplyKey===key&&p.unit===i.unit);return key?{...i,supplyKey:key,...(p&&i.quantity!==undefined?{unitPriceCents:p.unitPriceCents,cents:ingredientAmount(i.quantity,i.unit!,p.unitPriceCents)}:{})}:i})}))}
 export function ingredientAmount(quantity:number,unit:CostUnit,priceCents:number){return Math.round(quantity*priceCents/(unit==='un'?1:1000))}
 export function normalizeIngredient(input:Ingredient):Ingredient{
  if(!input||typeof input.name!=='string'||!input.name.trim()||input.name.length>80||!Number.isSafeInteger(input.cents)||input.cents<0||input.cents>10000000)throw Error('Confira o ingrediente e seu custo.');
  const detailed=input.quantity!==undefined||input.unit!==undefined||input.unitPriceCents!==undefined||input.yieldFactor!==undefined;
- const base:Ingredient={name:input.name.trim(),cents:input.cents,...(input.estimated===true?{estimated:true}:{})};
+ if(input.supplyKey!==undefined&&input.supplyKey!==''&&(typeof input.supplyKey!=='string'||!supplies[input.supplyKey]||!detailed||(supplies[input.supplyKey].unit||'g')!==input.unit))throw Error('Vincule um ingrediente com a mesma unidade de medida.');
+ const base:Ingredient={name:input.name.trim(),cents:input.cents,...(input.supplyKey!==undefined?{supplyKey:input.supplyKey}:{}),...(input.estimated===true?{estimated:true}:{})};
  if(!detailed)return base;
  if(typeof input.quantity!=='number'||!Number.isFinite(input.quantity)||input.quantity<=0||input.quantity>100000||!['g','ml','un'].includes(input.unit||'')||!Number.isSafeInteger(input.unitPriceCents)||input.unitPriceCents!<0||input.unitPriceCents!>10000000||input.yieldFactor!==undefined&&(!Number.isFinite(input.yieldFactor)||input.yieldFactor<=0||input.yieldFactor>10))throw Error('Confira quantidade, unidade, preço de compra e rendimento.');
  const cents=ingredientAmount(input.quantity,input.unit!,input.unitPriceCents!);
@@ -102,7 +106,7 @@ export function initialCostEstimates(items:CostItem[]):CostRecord[]{
   const shares=recipes[item.itemId],size=Number.parseFloat(item.size);
   if(!shares||!Number.isFinite(size)||size<=0)continue;
   const total=shares.reduce((n,[,amount])=>n+amount,0);
-  const ingredients:Ingredient[]=shares.map(([id,amount])=>{const s=supplies[id],quantity=Math.round(amount/total*size/s.yield*1000)/1000,unit=s.unit||'g';return {name:s.name,quantity,unit,unitPriceCents:s.price,yieldFactor:s.yield,cents:ingredientAmount(quantity,unit,s.price),estimated:true}});
+  const ingredients:Ingredient[]=shares.map(([id,amount])=>{const s=supplies[id],quantity=Math.round(amount/total*size/s.yield*1000)/1000,unit=s.unit||'g';return {name:s.name,quantity,unit,unitPriceCents:s.price,yieldFactor:s.yield,cents:ingredientAmount(quantity,unit,s.price),estimated:true,supplyKey:id}});
   const food=ingredients.reduce((n,i)=>n+i.cents,0),juice=item.category==='Sucos';
   initial.push({key:item.key,ingredients,components:[],packagingCents:juice?80:120,laborCents:juice?100:Math.round(250*size/300),otherCents:Math.round((juice?35:70*size/300)+food*.08),version:'',updatedAt:''});
  }

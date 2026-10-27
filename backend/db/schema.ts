@@ -61,5 +61,8 @@ export const orderPayments=sqliteTable('order_payments',{id:text('id').primaryKe
 export const menuCosts=sqliteTable('menu_costs',{key:text('key').primaryKey(),ingredients:text('ingredients').notNull(),components:text('components').notNull(),packagingCents:integer('packaging_cents').notNull(),laborCents:integer('labor_cents').notNull(),otherCents:integer('other_cents').notNull(),version:text('version').notNull(),actor:text('actor').notNull(),updatedAt:text('updated_at').notNull()});
 
 export const shoppingItems=sqliteTable('shopping_items',{
- id:text('id').primaryKey(),name:text('name').notNull(),quantity:text('quantity').notNull(),unit:text('unit').notNull(),purchased:integer('purchased',{mode:'boolean'}).notNull().default(false),purchasedAt:text('purchased_at'),version:text('version').notNull(),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()
+ id:text('id').primaryKey(),name:text('name').notNull(),quantity:text('quantity').notNull(),unit:text('unit').notNull(),ingredientKey:text('ingredient_key'),purchased:integer('purchased',{mode:'boolean'}).notNull().default(false),purchasedAt:text('purchased_at'),version:text('version').notNull(),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()
 });
+export const shoppingPurchases=sqliteTable('shopping_purchases',{
+ shoppingId:text('shopping_id').primaryKey().references(()=>shoppingItems.id),supplyKey:text('supply_key').notNull(),quantity:text('quantity').notNull(),unit:text('unit').notNull(),totalCents:integer('total_cents').notNull(),unitPriceCents:integer('unit_price_cents').notNull(),updatedAt:text('updated_at').notNull()
+},t=>[index('shopping_purchases_supply').on(t.supplyKey)]);
