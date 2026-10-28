@@ -1,0 +1,39 @@
+name: Improve order report and monitor unfinished carts
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-reports-carts.zip, .github/workflows/update-reports-carts.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: cf40d5c7fe65149b47595d74f86502543f7023664d2587ad1249d31fd05d7bd7
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-reports-carts.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+                  assert entry.filename.startswith(('app/', 'lib/', 'backend/app/', 'backend/lib/', 'backend/db/', 'backend/drizzle/'))
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Improve order report and add unfinished cart monitoring'
+          git push origin HEAD:main
