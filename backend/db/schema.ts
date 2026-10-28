@@ -72,3 +72,5 @@ export const orderProfits=sqliteTable('order_profits',{
 export const orderEdits=sqliteTable('order_edits',{
  id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),beforeState:text('before_state').notNull(),afterState:text('after_state').notNull(),actor:text('actor').notNull(),createdAt:text('created_at').notNull()
 },t=>[index('order_edits_order_created').on(t.orderId,t.createdAt)]);
+
+export const cartSnapshots=sqliteTable('cart_snapshots',{id:text('id').primaryKey(),customerId:text('customer_id'),items:text('items').notNull(),convertedOrderId:text('converted_order_id'),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()},t=>[index('cart_snapshots_updated').on(t.updatedAt)]);
