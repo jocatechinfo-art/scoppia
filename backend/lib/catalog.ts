@@ -6,7 +6,7 @@ export const mealCategories=['Tradicionais','Fit','Vegetarianas','Peixes','Low c
 export async function catalogSnapshot(){
  const db=getDb();const [states,prices,revisions]=await db.batch([db.select().from(availability),db.select().from(menuPrices),db.select().from(menuPriceState)]);
  const active=new Map(states.map(s=>[s.id,s.active]));const amounts=new Map(prices.map(p=>[p.id,p.cents]));
- const items=menu.map(i=>({...i,active:active.get(i.id)??true,prices:i.prices.map((p,j)=>(amounts.get(i.id+':'+j)??Math.round(p*100))/100)}));
+ const items=menu.map(i=>{const prices=i.prices.map((p,j)=>(amounts.get(i.id+':'+j)??Math.round(p*100))/100),priceUnset=!!i.priceUnset&&prices.some(p=>p<=0);return {...i,prices,priceUnset,active:!priceUnset&&(active.get(i.id)??i.defaultActive??true)}});
  const revision=revisions.find(s=>s.id==='catalog')?.revision??0;
  const fingerprint=await digest(JSON.stringify(items.map(i=>({id:i.id,prices:i.prices.map(p=>Math.round(p*100))}))));return {items,revision,fingerprint};
 }
