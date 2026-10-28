@@ -1,0 +1,39 @@
+name: Set cake prices and keep cakes inactive
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-cake-prices.zip, .github/workflows/update-cake-prices.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: 52f0e0d829e671b6b2bf144d1f6420999a56329b19cbda1fa80dff9e77d0f656
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-cake-prices.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+                  assert entry.filename.startswith(('app/', 'lib/', 'backend/app/', 'backend/lib/', 'backend/db/', 'backend/drizzle/'))
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Set five cake prices while preserving inactive availability'
+          git push origin HEAD:main
