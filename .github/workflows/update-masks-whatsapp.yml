@@ -1,0 +1,39 @@
+name: Add input masks and improve customer WhatsApp notices
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-masks-whatsapp.zip, .github/workflows/update-masks-whatsapp.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: 00de815385aa992c8510868d678ab15c8a67f11996aa5519c53cad838f48d027
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-masks-whatsapp.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+                  assert entry.filename.startswith(('app/', 'lib/', 'backend/app/', 'backend/lib/', 'backend/db/', 'backend/drizzle/'))
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Add CPF CEP phone masks and fix WhatsApp notice flow'
+          git push origin HEAD:main
