@@ -1,4 +1,5 @@
 'use client';
+import MaskedInput from './masked-input';
 import DeliveryQuote from './delivery-quote';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {emptyAddress,formatAddress,type DeliveryAddress} from '@/lib/delivery';
@@ -24,7 +25,7 @@ export default function AddressFields({initial=null}:{initial?:DeliveryAddress|n
  };
  const displayCep=value.cep.length>5?value.cep.slice(0,5)+'-'+value.cep.slice(5):value.cep;
  return <fieldset className="address-fields"><legend>Endereço de entrega</legend><p className="muted">Digite o CEP para buscar o endereço. Número e complemento são preenchidos por você.</p><input type="hidden" name="addressDetails" value={JSON.stringify(value)}/><input type="hidden" name="address" value={formatAddress(value)}/><div className="address-grid">
- <div className="cep-lookup address-wide"><label>CEP<input name="cep" inputMode="numeric" autoComplete="postal-code" required pattern="[0-9]{5}-?[0-9]{3}" maxLength={9} placeholder="00000-000" value={displayCep} onChange={e=>update('cep',e.target.value)}/></label><button type="button" className="secondary" disabled={value.cep.length!==8||busy} onClick={()=>void lookup(value.cep)}>{busy?'Buscando…':'Buscar endereço'}</button></div>
+ <div className="cep-lookup address-wide"><label>CEP<MaskedInput mask="cep" name="cep" inputMode="numeric" autoComplete="postal-code" required pattern="[0-9]{5}-?[0-9]{3}" maxLength={9} placeholder="00000-000" value={displayCep} onValueChange={value=>update('cep',value)}/></label><button type="button" className="secondary" disabled={value.cep.length!==8||busy} onClick={()=>void lookup(value.cep)}>{busy?'Buscando…':'Buscar endereço'}</button></div>
  {notice?<p className={'cep-notice address-wide'+(failed?' is-error':'')} role={failed?'alert':'status'} aria-live="polite">{notice}</p>:null}
  <label className="address-wide">Rua / avenida<input name="street" autoComplete="address-line1" required minLength={2} maxLength={120} value={value.street} onChange={e=>update('street',e.target.value)}/></label>
  <label>Número<input name="number" required maxLength={20} placeholder="Ex.: 123 ou S/N" value={value.number} onChange={e=>update('number',e.target.value)}/></label>
