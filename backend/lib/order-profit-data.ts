@@ -1,3 +1,4 @@
+import {orderCostCenter} from './order-cost-center';
 import {getDb} from '@/db';
 import {orders} from '@/db/schema';
 import {and,eq,isNull,desc} from 'drizzle-orm';
@@ -21,7 +22,7 @@ export async function profitData(orderId?:string,customerId?:string){
   const frozen=record&&!stale&&!record.snapshot.missing.length?record:null;
   const calculation=frozen?{...frozen.snapshot}:resolveOrderProfit(items,revenueCents,record&&!stale?record.inputs:emptyProfitInputs(),costs.items,recipes);
   if(o.status==='cancelado'){calculation.profitCents=null;calculation.margin=null;calculation.missing=['Pedido cancelado — fora do resultado']}
-  return {id:o.id,orderNumber:o.orderNumber,customerName:o.customerName,status:o.status,createdAt:o.createdAt,items,revenueCents,fingerprint,record,stale,result:calculation};
+  return {id:o.id,orderNumber:o.orderNumber,customerName:o.customerName,status:o.status,createdAt:o.createdAt,items,revenueCents,fingerprint,record,stale,center:orderCostCenter(items,revenueCents,costs.items,recipes,costs.purchasePrices,record&&!stale?record.inputs:emptyProfitInputs()),result:calculation};
  }));
  return {orders:result,items:costs.items,recipes,raw,enriched};
 }

@@ -1,3 +1,4 @@
+import type {OrderCostCenter} from './order-cost-center';
 import type {CostItem,CostRecord} from './commerce-types';
 import {recipeCost} from './commerce-math';
 import {usesEstimates} from './cost-estimates';
@@ -9,7 +10,7 @@ export type ProfitInputs={lines:ProfitOverride[],goodsTotalCents:number|null,fee
 export type ResolvedProfitLine=ProfitLine&{unitCostCents:number|null,totalCents:number|null,source:string,estimated:boolean};
 export type ProfitSnapshot={lines:ResolvedProfitLine[],goodsCents:number|null,totalCostCents:number|null,revenueCents:number|null,profitCents:number|null,margin:number|null,missing:string[],estimated:boolean};
 export type ProfitRecord={version:string,fingerprint:string,inputs:ProfitInputs,snapshot:ProfitSnapshot,updatedAt:string};
-export type ProfitOrder={id:string,orderNumber:number|null,customerName:string,status:string,createdAt:string,items:ProfitSoldItem[],revenueCents:number|null,fingerprint:string,record:ProfitRecord|null,stale:boolean,result:ProfitSnapshot};
+export type ProfitOrder={id:string,orderNumber:number|null,customerName:string,status:string,createdAt:string,items:ProfitSoldItem[],revenueCents:number|null,fingerprint:string,record:ProfitRecord|null,stale:boolean,center:OrderCostCenter,result:ProfitSnapshot};
 export type ProfitData={orders:ProfitOrder[],items:CostItem[],recipes:CostRecord[]};
 export const emptyProfitInputs=():ProfitInputs=>({lines:[],goodsTotalCents:null,feesCents:0,deliveryCostCents:0,extraCents:0,expensesReviewed:false,note:''});
 
