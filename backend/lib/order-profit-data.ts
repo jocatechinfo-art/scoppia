@@ -1,3 +1,4 @@
+import {applyPackagingCosts} from './packaging-costs';
 import {orderCostCenter} from './order-cost-center';
 import {getDb} from '@/db';
 import {orders} from '@/db/schema';
@@ -13,7 +14,7 @@ export async function profitData(orderId?:string,customerId?:string){
  const raw=await getDb().select().from(orders).where(and(isNull(orders.deletedAt),orderId?eq(orders.id,orderId):undefined,customerId?eq(orders.customerId,customerId):undefined)).orderBy(desc(orders.createdAt));
  const ids=JSON.stringify(raw.map(o=>o.id));
  const [costs,enriched,stored,edits]=await Promise.all([costData(),enrichOrders(raw,true),inventoryDb().prepare('SELECT * FROM order_profits WHERE order_id IN (SELECT value FROM json_each(?))').bind(ids).all<{order_id:string,version:string,fingerprint:string,inputs:string,snapshot:string,updated_at:string}>(),inventoryDb().prepare('SELECT order_id,id FROM order_edits WHERE order_id IN (SELECT value FROM json_each(?)) ORDER BY created_at DESC,id DESC').bind(ids).all<{order_id:string,id:string}>()]);
- const known=new Set(costs.recipes.map(r=>r.key)),recipes=priceRecipes([...costs.recipes,...initialCostEstimates(costs.items).filter(r=>!known.has(r.key))],costs.purchasePrices);
+ const known=new Set(costs.recipes.map(r=>r.key)),recipes=priceRecipes(applyPackagingCosts([...costs.recipes,...initialCostEstimates(costs.items).filter(r=>!known.has(r.key))],costs.items,costs.packaging),costs.purchasePrices);
  const result:ProfitOrder[]=await Promise.all(enriched.map(async o=>{
   const row=stored.results.find(r=>r.order_id===o.id),items=o.items as ProfitSoldItem[],revenueCents=o.commerce.totalCents;
   const editRevision=edits.results.find(e=>e.order_id===o.id)?.id;

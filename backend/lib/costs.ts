@@ -1,3 +1,4 @@
+import {packagingData} from './packaging';
 import {inventoryDb,inventoryCatalog} from './inventory';
 import {mealCategories} from './catalog';
 import {menu} from './menu';
@@ -14,5 +15,5 @@ export async function costData(){
  });
  const rows=stored.results as {key:string,ingredients:string,components:string,packaging_cents:number,labor_cents:number,other_cents:number,version:string,updated_at:string}[];
  const recipes:CostRecord[]=rows.map(r=>({key:r.key,ingredients:JSON.parse(r.ingredients),components:JSON.parse(r.components),packagingCents:r.packaging_cents,laborCents:r.labor_cents,otherCents:r.other_cents,version:r.version,updatedAt:r.updated_at}));
- return {items,recipes,mealCategories,purchasePrices:await purchasePrices()};
+ return {items,recipes,mealCategories,purchasePrices:await purchasePrices(),packaging:await packagingData()};
 }

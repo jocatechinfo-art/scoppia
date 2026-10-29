@@ -1,9 +1,9 @@
 'use client';
 import {ClipboardList,FileText,CalendarDays,ChefHat,Package,Wallet,TrendingUp,Truck,ShoppingBasket,Calculator} from 'lucide-react';
-export type OrdersView='cards'|'report'|'production'|'inventory'|'daily'|'delivery'|'finance'|'costs'|'shopping'|'profit'|'carts';
+export type OrdersView='cards'|'report'|'production'|'inventory'|'daily'|'delivery'|'finance'|'costs'|'shopping'|'profit'|'carts'|'packaging';
 const groups=[
  {id:'orders',label:'Pedidos',icon:ClipboardList,items:[{id:'cards',label:'Gerenciar pedidos',short:'Pedidos',icon:ClipboardList},{id:'daily',label:'Hoje',short:'Hoje',icon:CalendarDays},{id:'delivery',label:'Entregas / frete',short:'Entregas',icon:Truck},{id:'carts',label:'Carrinhos não finalizados',short:'Carrinhos',icon:ShoppingBasket},{id:'report',label:'Relatório dos pedidos',short:'Relatórios',icon:FileText}]},
- {id:'kitchen',label:'Cozinha',icon:ChefHat,items:[{id:'production',label:'Produção',short:'Produção',icon:ChefHat},{id:'inventory',label:'Estoque',short:'Estoque',icon:Package},{id:'shopping',label:'Lista de compras',short:'Compras',icon:ShoppingBasket}]},
+ {id:'kitchen',label:'Cozinha',icon:ChefHat,items:[{id:'production',label:'Produção',short:'Produção',icon:ChefHat},{id:'inventory',label:'Estoque',short:'Estoque',icon:Package},{id:'packaging',label:'Embalagens',short:'Embalagens',icon:Package},{id:'shopping',label:'Lista de compras',short:'Compras',icon:ShoppingBasket}]},
  {id:'money',label:'Financeiro',icon:Wallet,items:[{id:'profit',label:'Lucro dos pedidos',short:'Lucro dos pedidos',icon:TrendingUp},{id:'finance',label:'Pagamentos',short:'Pagamentos',icon:Wallet},{id:'costs',label:'Custos e margem',short:'Fichas de custo',icon:Calculator}]}
 ];
 export default function OrdersMenu({view,onChange}:{view:OrdersView,onChange:(view:OrdersView)=>void}){

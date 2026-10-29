@@ -1,12 +1,13 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import {applyPackagingCosts,packagingLinksFor,type PackagingData} from '@/lib/packaging-costs';
 import {money} from '@/lib/operations';
 import {recipeCost} from '@/lib/commerce-math';
 import {initialCostEstimates,ingredientAmount,usesEstimates,supplyCatalog,ingredientSupplyKey,priceRecipes} from '@/lib/cost-estimates';
 import type {CostItem,CostRecord,CostUnit,Ingredient,PurchasePrice} from '@/lib/commerce-types';
 import {csvCell} from '@/lib/order-report';
 
-type Data={items:CostItem[],recipes:CostRecord[],mealCategories:string[],purchasePrices:PurchasePrice[]};
+type Data={items:CostItem[],recipes:CostRecord[],mealCategories:string[],purchasePrices:PurchasePrice[],packaging?:PackagingData};
 type IngredientDraft={name:string,cost:string,quantity:string,unit:CostUnit,price:string,yield:string,detailed:boolean,estimated:boolean,supplyKey:string};
 const decimal=(n:number)=>String(n);
 const fromIngredient=(i:Ingredient):IngredientDraft=>({name:i.name,cost:decimal(i.cents/100),quantity:decimal(i.quantity??1),unit:i.unit||'un',price:decimal((i.unitPriceCents??i.cents)/100),yield:decimal(i.yieldFactor??1),detailed:i.quantity!==undefined,estimated:!!i.estimated,supplyKey:ingredientSupplyKey(i)});
@@ -24,6 +25,8 @@ function CostEditor({item,record,data,saved,onSaved,onBusy}:{item:CostItem,recor
  const [editingVersion]=useState(record?.version||'');
  const [reviewed,setReviewed]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
  const draft:CostRecord={key:item.key,ingredients:item.count?[]:ingredients.filter(i=>i.name.trim()).map(i=>i.detailed?{name:i.name,quantity:Number(i.quantity),unit:i.unit,unitPriceCents:cents(i.price),yieldFactor:Number(i.yield),cents:ingredientAmount(Number(i.quantity),i.unit,cents(i.price)),estimated:i.estimated&&!reviewed,supplyKey:i.supplyKey}:{name:i.name,cents:cents(i.cost),estimated:i.estimated&&!reviewed}),components:item.count?components:[],packagingCents:cents(packaging),laborCents:cents(labor),otherCents:cents(other),version:editingVersion,updatedAt:''};
+ const linkedPackaging=data.packaging?packagingLinksFor(item,data.packaging.links):[];
+ if(linkedPackaging.length)draft.packagingCents=applyPackagingCosts([draft],data.items,data.packaging)[0].packagingCents;
  draft.ingredients=priceRecipes([draft],data.purchasePrices||[])[0].ingredients;
  const cost=recipeCost(draft,data.recipes),margin=cost==null||item.priceCents==null?null:item.priceCents-cost;
  const options=data.items.filter(i=>data.mealCategories.includes(i.category)&&i.size===item.size);
@@ -35,7 +38,7 @@ function CostEditor({item,record,data,saved,onSaved,onBusy}:{item:CostItem,recor
   finally{setBusy(false);onBusy(false)}
  }
  return <form className="cost-editor commerce-order" onSubmit={save}>
-  <div className="cost-editor-heading"><div><span className="eyebrow">FICHA DE CUSTO</span><h3>{item.name} · {item.size}</h3></div><span className="cost-basis">{!saved?'Estimativa inicial · não salva':usesEstimates(record,data.recipes)?'Salva com estimativas':'Ficha cadastrada'}</span></div>
+  {linkedPackaging.length?<p className="purchase-source">Embalagem calculada pelos vínculos cadastrados em Embalagens. Este custo substitui o valor manual da ficha. <a href="/admin/pedidos?aba=packaging">Gerenciar embalagens →</a></p>:null}<div className="cost-editor-heading"><div><span className="eyebrow">FICHA DE CUSTO</span><h3>{item.name} · {item.size}</h3></div><span className="cost-basis">{!saved?'Estimativa inicial · não salva':usesEstimates(record,data.recipes)?'Salva com estimativas':'Ficha cadastrada'}</span></div>
   <p>{item.count?'Simule os sabores do combo completo. O custo muda conforme a escolha do cliente.':'Edite a quantidade de ingrediente de compra por porção e o preço por kg, litro ou unidade. O custo é recalculado automaticamente.'}</p>
   {!saved?<p className="cost-assumptions">Ponto de partida ilustrativo, sem pesagem da sua cozinha ou cotação de fornecedor. Confira a composição e os preços antes de usar a margem para decidir valores.</p>:null}
   {item.count?<>
@@ -67,7 +70,7 @@ function CostEditor({item,record,data,saved,onSaved,onBusy}:{item:CostItem,recor
    {ingredients.some(i=>i.estimated)?<label className="cost-reviewed"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)} disabled={busy}/> Revisei as quantidades e os preços; retirar a marca de estimativa dos ingredientes ao salvar.</label>:null}
   </>}
   <div className="commerce-form">
-   <label>{item.count?'Embalagem adicional do combo (R$)':'Embalagem (R$)'}<input type="number" min="0" max="100000" step="0.01" value={packaging} onChange={e=>setPackaging(e.target.value)} required disabled={busy}/></label>
+   <label>{item.count?'Embalagem adicional do combo (R$)':'Embalagem (R$)'}<input type="number" min="0" max="100000" step="0.01" value={linkedPackaging.length?String(draft.packagingCents/100):packaging} readOnly={linkedPackaging.length>0} onChange={e=>setPackaging(e.target.value)} required disabled={busy}/></label>
    <label>Mão de obra (R$)<input type="number" min="0" max="100000" step="0.01" value={labor} onChange={e=>setLabor(e.target.value)} required disabled={busy}/></label>
    <label>Outros custos rateados (R$)<input type="number" min="0" max="100000" step="0.01" value={other} onChange={e=>setOther(e.target.value)} required disabled={busy}/></label>
   </div>
@@ -80,7 +83,7 @@ function CostEditor({item,record,data,saved,onSaved,onBusy}:{item:CostItem,recor
 export default function CostsBoard(){
  const [data,setData]=useState<Data|null>(null),[revision,setRevision]=useState(0),[notice,setNotice]=useState(''),[search,setSearch]=useState(''),[category,setCategory]=useState(''),[selected,setSelected]=useState('');
  useEffect(()=>{const c=new AbortController();const load=()=>fetch('/api/admin/costs',{cache:'no-store',signal:c.signal}).then(async r=>{if(!r.ok)throw Error('Não foi possível carregar os custos.');setData(await r.json() as Data)}).catch(e=>{if(!c.signal.aborted)setNotice(e.message)});const changed=(e:StorageEvent)=>{if(e.key==='scoppia:purchase-prices')void load()};void load();const timer=setInterval(load,30000);window.addEventListener('focus',load);window.addEventListener('scoppia:purchase-prices',load);window.addEventListener('storage',changed);return()=>{c.abort();clearInterval(timer);window.removeEventListener('focus',load);window.removeEventListener('scoppia:purchase-prices',load);window.removeEventListener('storage',changed)}},[revision]);
- const initial=data?initialCostEstimates(data.items):[],savedKeys=new Set(data?.recipes.map(r=>r.key)),baseRecipes=[...(data?.recipes||[]),...initial.filter(r=>!savedKeys.has(r.key))],recipes=priceRecipes(baseRecipes,data?.purchasePrices||[]);
+ const initial=data?initialCostEstimates(data.items):[],savedKeys=new Set(data?.recipes.map(r=>r.key)),baseRecipes=[...(data?.recipes||[]),...initial.filter(r=>!savedKeys.has(r.key))],recipes=priceRecipes(applyPackagingCosts(baseRecipes,data?.items||[],data?.packaging),data?.purchasePrices||[]);
  const dialog=useRef<HTMLDialogElement>(null),[editorBusy,setEditorBusy]=useState(false);
  useEffect(()=>{if(selected&&!dialog.current?.open)dialog.current?.showModal();else if(!selected&&dialog.current?.open)dialog.current.close()},[selected]);
  const items=data?.items.filter(i=>(!category||i.category===category)&&(!search||(i.name+' '+i.size).toLocaleLowerCase().includes(search.toLocaleLowerCase())))||[],item=data?.items.find(i=>i.key===selected);

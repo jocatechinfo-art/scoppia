@@ -74,3 +74,7 @@ export const orderEdits=sqliteTable('order_edits',{
 },t=>[index('order_edits_order_created').on(t.orderId,t.createdAt)]);
 
 export const cartSnapshots=sqliteTable('cart_snapshots',{id:text('id').primaryKey(),customerId:text('customer_id'),items:text('items').notNull(),convertedOrderId:text('converted_order_id'),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()},t=>[index('cart_snapshots_updated').on(t.updatedAt)]);
+
+export const packagingStock=sqliteTable('packaging_stock',{id:text('id').primaryKey(),name:text('name').notNull(),quantity:integer('quantity').notNull().default(0),unitCostCents:integer('unit_cost_cents').notNull().default(0),version:text('version').notNull(),updatedAt:text('updated_at').notNull()});
+export const packagingMovements=sqliteTable('packaging_movements',{id:text('id').primaryKey(),packagingId:text('packaging_id').notNull().references(()=>packagingStock.id),kind:text('kind').notNull(),delta:integer('delta').notNull(),totalCents:integer('total_cents').notNull(),balance:integer('balance').notNull(),note:text('note').notNull(),actor:text('actor').notNull(),createdAt:text('created_at').notNull()},t=>[index('packaging_movements_item').on(t.packagingId,t.createdAt)]);
+export const packagingLinks=sqliteTable('packaging_links',{id:text('id').primaryKey(),target:text('target').notNull(),packagingId:text('packaging_id').notNull().references(()=>packagingStock.id),qty:integer('qty').notNull(),version:text('version').notNull(),updatedAt:text('updated_at').notNull()});
