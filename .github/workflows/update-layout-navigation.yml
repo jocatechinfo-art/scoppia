@@ -1,0 +1,39 @@
+name: Refine order kitchen shopping cost and inventory layout
+on:
+  push:
+    branches: [main]
+    paths: [scoppia-layout-navigation.zip, .github/workflows/update-layout-navigation.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and import reviewed source
+        env:
+          EXPECTED_SHA256: 1a42e8857c27e9b20e1e9f340c1094786e8a4da7ddfe38694c7bcc7acd159b9e
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, zipfile
+          archive = pathlib.Path('scoppia-layout-navigation.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == os.environ['EXPECTED_SHA256'], 'Unexpected source archive'
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  p = pathlib.PurePosixPath(entry.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and p.parts[0] != '.git'
+                  assert entry.filename.startswith(('app/', 'lib/', 'backend/app/', 'backend/lib/', 'backend/db/', 'backend/drizzle/'))
+              z.extractall('.')
+          archive.unlink()
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'jocatechinfo-art'
+          git config user.email '315828637+jocatechinfo-art@users.noreply.github.com'
+          git add --all
+          git commit -m 'Refine admin navigation and mobile order kitchen lists'
+          git push origin HEAD:main
