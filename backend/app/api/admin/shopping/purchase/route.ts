@@ -15,7 +15,7 @@ export async function POST(req:Request){
   // The guarded insert and status change share one D1 transaction. A stale item cannot publish a price.
   const result=await db.batch([
    db.prepare('INSERT INTO shopping_purchases(shopping_id,supply_key,quantity,unit,total_cents,unit_price_cents,updated_at) SELECT id,?,?,?,?,?,? FROM shopping_items WHERE id=? AND version=? ON CONFLICT(shopping_id) DO UPDATE SET supply_key=excluded.supply_key,quantity=excluded.quantity,unit=excluded.unit,total_cents=excluded.total_cents,unit_price_cents=excluded.unit_price_cents,updated_at=excluded.updated_at').bind(fields.supplyKey,fields.quantity,fields.unit,fields.totalCents,fields.unitPriceCents,now,b.id,b.version),
-   db.prepare('UPDATE shopping_items SET ingredient_key=?,purchased=1,purchased_at=?,updated_at=?,version=? WHERE id=? AND version=?').bind(fields.supplyKey,now,now,token,b.id,b.version)
+   db.prepare('UPDATE shopping_items SET ingredient_key=?,purchased=1,purchased_at=?,updated_at=?,version=? WHERE id=? AND version=?').bind(fields.supplyKey||null,now,now,token,b.id,b.version)
   ]);
   if(!result[1].meta.changes)return Response.json({error:'Este item mudou em outro acesso. Atualize a lista antes de registrar a compra.'},{status:409,headers:privateHeaders});
   const [saved]=await getDb().select().from(shoppingItems).where(eq(shoppingItems.id,b.id));const [purchase]=await getDb().select().from(shoppingPurchases).where(eq(shoppingPurchases.shoppingId,b.id));
