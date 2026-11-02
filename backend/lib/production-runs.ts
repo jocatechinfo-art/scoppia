@@ -1,3 +1,4 @@
+import {productionExpiry} from './production-expiry';
 import {inventoryCatalog,inventoryDb,stockAssignments} from './inventory';
 import {productionLines} from './production';
 import {allocateProduction} from './production-allocation';
@@ -20,6 +21,7 @@ export async function productionEntryData(){
 }
 export type RunInput={id:string,key:string,quantity:number,producedOn:string,expiresOn:string};
 export async function includeProduction(b:RunInput,actor:string){
+ b={...b,expiresOn:productionExpiry(b.producedOn)};
  if(typeof b.id!=='string'||!/^[-a-f0-9]{36}$/i.test(b.id)||typeof b.key!=='string'||b.key.length>3000||!Number.isSafeInteger(b.quantity)||b.quantity<1||b.quantity>100000||!validDay(b.producedOn)||!validDay(b.expiresOn)||b.producedOn>today()||b.expiresOn<today()||b.expiresOn<b.producedOn)throw Error('Informe item, quantidade inteira, data de produção até hoje e validade não vencida.');
  const db=inventoryDb(),fingerprint=JSON.stringify([b.key,b.quantity,b.producedOn,b.expiresOn]);
  const prior=await db.prepare('SELECT fingerprint,quantity,allocated_qty FROM production_runs WHERE id=?').bind(b.id).first<{fingerprint:string,quantity:number,allocated_qty:number}>();
