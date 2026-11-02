@@ -45,6 +45,10 @@ export const productionProgress=sqliteTable('production_progress',{
  id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),itemKey:text('item_key').notNull(),readyQty:integer('ready_qty').notNull().default(0),updatedAt:text('updated_at').notNull()
 },t=>[index('production_progress_order').on(t.orderId)]);
 
+export const productionRuns=sqliteTable('production_runs',{
+ id:text('id').primaryKey(),token:text('token').notNull(),fingerprint:text('fingerprint').notNull(),itemKey:text('item_key').notNull(),name:text('name').notNull(),size:text('size').notNull(),description:text('description').notNull(),quantity:integer('quantity').notNull(),allocatedQty:integer('allocated_qty').notNull(),producedOn:text('produced_on').notNull(),expiresOn:text('expires_on').notNull(),actor:text('actor').notNull(),createdAt:text('created_at').notNull()
+},t=>[index('production_runs_created').on(t.createdAt)]);
+
 export const inventory=sqliteTable('inventory',{itemKey:text('item_key').primaryKey(),quantity:integer('quantity').notNull().default(0),updatedAt:text('updated_at').notNull()});
 export const stockAllocations=sqliteTable('stock_allocations',{id:text('id').primaryKey(),orderId:text('order_id').notNull().references(()=>orders.id),itemKey:text('item_key').notNull(),qty:integer('qty').notNull()},t=>[index('stock_allocations_item').on(t.itemKey),index('stock_allocations_order').on(t.orderId)]);
 
