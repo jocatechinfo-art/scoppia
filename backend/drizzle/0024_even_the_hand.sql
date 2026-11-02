@@ -1,0 +1,1 @@
+ALTER TABLE `production_runs` ADD `completed_orders` text DEFAULT '[]' NOT NULL;

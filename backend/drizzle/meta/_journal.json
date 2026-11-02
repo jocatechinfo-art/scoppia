@@ -169,6 +169,13 @@
       "when": 1793634906137,
       "tag": "0023_powerful_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1793641714847,
+      "tag": "0024_even_the_hand",
+      "breakpoints": true
     }
   ]
 }
