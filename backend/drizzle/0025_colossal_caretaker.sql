@@ -1,0 +1,1 @@
+ALTER TABLE `production_runs` ADD `allocation_details` text DEFAULT '[]' NOT NULL;
